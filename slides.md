@@ -80,27 +80,10 @@ rightSpan: 2
 <img src="/images/pda_services.png" style="height:50vh" />
 </div>
 
+
 ---
+layout: two-cols-customer
 transition: slide-up
-layout: two-cols-customer
-leftSpan: 1
-rightSpan: 2
----
-<!-- <img src="/images/pda_moving_location.jpg" class="object-fill h-full shadow" /> -->
-
-<div class="h-full flex items-center justify-center">
-<Phone img="/images/pda_moving_location.jpg" />
-</div>
-
-::right::
-
-<div class="py-8 px-4 flex justify-center" >
-  <img src="/images/query_process.png" style="height:50vh" />
-</div>
-
-
----
-layout: two-cols-customer
 leftSpan: 1
 rightSpan: 2
 ---
@@ -132,138 +115,82 @@ rightSpan: 2
 }
 </style>
 
----
-layout: image-right
-image: https://source.unsplash.com/collection/94734566/1920x1080
----
-
-# Code
-
-Use code snippets and get the highlighting directly![^1]
-
-```ts {all|2|1-6|9|all}
-interface User {
-  id: number
-  firstName: string
-  lastName: string
-  role: string
-}
-
-function updateUser(id: number, update: User) {
-  const user = getUser(id)
-  const newUser = { ...user, ...update }
-  saveUser(id, newUser)
-}
-```
-
-<arrow v-click="3" x1="400" y1="420" x2="230" y2="330" color="#564" width="3" arrowSize="1" />
-
-[^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
-
-<style>
-.footnotes-sep {
-  @apply mt-20 opacity-10;
-}
-.footnotes {
-  @apply text-sm opacity-75;
-}
-.footnote-backref {
-  display: none;
-}
-</style>
-
-
 
 ---
+transition: slide-left
+layout: two-cols-customer
+leftSpan: 1
+rightSpan: 2
+---
+<!-- <img src="/images/pda_moving_location.jpg" class="object-fill h-full shadow" /> -->
 
-# Diagrams
-
-You can create diagrams / graphs from textual descriptions, directly in your Markdown.
-
-<div class="grid grid-cols-4 gap-5 pt-4 -mb-6">
-
-```mermaid {scale: 0.5}
-sequenceDiagram
-    Alice->John: Hello John, how are you?
-    Note over Alice,John: A typical interaction
-```
-
-```mermaid {theme: 'neutral', scale: 0.8}
-graph TD
-B[Text] --> C{Decision}
-C -->|One| D[Result 1]
-C -->|Two| E[Result 2]
-```
-
-```mermaid
-mindmap
-  root((mindmap))
-    Origins
-      Long history
-      ::icon(fa fa-book)
-      Popularisation
-        British popular psychology author Tony Buzan
-    Research
-      On effectivness<br/>and features
-      On Automatic creation
-        Uses
-            Creative techniques
-            Strategic planning
-            Argument mapping
-    Tools
-      Pen and paper
-      Mermaid
-```
-
-```plantuml {scale: 0.7}
-@startuml
-
-package "Some Group" {
-  HTTP - [First Component]
-  [Another Component]
-}
-
-node "Other Groups" {
-  FTP - [Second Component]
-  [First Component] --> FTP
-}
-
-cloud {
-  [Example 1]
-}
-
-
-database "MySql" {
-  folder "This is my folder" {
-    [Folder 3]
-  }
-  frame "Foo" {
-    [Frame 4]
-  }
-}
-
-
-[Another Component] --> [Example 1]
-[Example 1] --> [Folder 3]
-[Folder 3] --> [Frame 4]
-
-@enduml
-```
-
+<div class="h-full flex items-center justify-center">
+<Phone img="/images/pda_moving_location.jpg" />
 </div>
 
-[Learn More](https://sli.dev/guide/syntax.html#diagrams)
+::right::
+
+<div class="py-8 px-4 flex justify-center" >
+  <img src="/images/query_process.png" style="height:50vh" />
+</div>
+
 
 ---
-src: ./pages/multiple-entries.md
-hide: false
+layout: two-cols
 ---
 
----
-layout: center
-class: text-center
----
+```ts {all|2|4-19|21-23|all}
+class OperationDelegate {
+  operationInstance?: Operation
+  
+  async query(q: string) {
+    let instance: Operation
+    
+    instance = new WmsOperation()
+    const wmsResp = await instance.query(q)
+    if (wmsResp.isSuccess) {
+      this.operationInstance = instance
+      return
+    }
 
-# Learn More
+    instance = new FbaOperation()
+    const fbaResp = await instance.query(q)
+    if (fbaResp.isSuccess) {
+      this.operationInstance = instance
+    }
+  }
 
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
+  submit() {
+    this.operationInstance?.submit()
+  }
+}
+```
+
+::right::
+
+```ts
+/**
+ * 抽象类，定义公共接口
+ */
+abstract class Operation {
+  abstract query(q: string):Promise<any>;
+  abstract submit():Promise<void>;
+}
+
+
+/**
+ * 具体实现类 -- 实现 WMS 业务的操作
+ */
+class WmsOperation extends Operation {
+  async query(q: string) { /* ... */}
+  async submit() { /* ... */}
+}
+
+/**
+ * 具体实现类 -- 实现 FBA 业务的操作
+ */
+class FbaOperation extends Operation {
+  async query(q: string) { /* ... */}
+  async submit() { /* ... */}
+}
+```
