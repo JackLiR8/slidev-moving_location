@@ -4,7 +4,6 @@ background: https://pic1.zhimg.com/80/v2-6800afbeb8afc95e01ca00166433ec2c_720w.w
 class: text-center
 highlighter: shiki
 lineNumbers: false
-
 drawings:
   persist: false
 transition: slide-left
@@ -15,9 +14,6 @@ title: 移库位
 
 业务流程以及在PDA上的实现
 
-<!--
-The last comment block of each slide will be treated as slide notes. It will be visible and editable in Presenter Mode along with the slide. [Read more in the docs](https://sli.dev/guide/syntax.html#notes)
--->
 
 ---
 transition: slide-left
@@ -40,11 +36,6 @@ title: 基本概念
 <br>
 
 
-<!--
-You can have `style` tag in markdown to override the style for the current page.
-Learn more: https://sli.dev/guide/syntax#embedded-styles
--->
-
 <style>
 h1 {
   background-color: #2B90B6;
@@ -61,9 +52,38 @@ h1 {
 Here is another comment.
 -->
 
-
 ---
 transition: slide-up
+layout: two-cols-customer
+leftSpan: 1
+rightSpan: 2
+---
+
+<!-- <img src="/images/pda_moving_location.jpg" class="object-fill h-full shadow" /> -->
+
+<div class="h-full flex items-center justify-center">
+<Phone img="/images/pda_moving_location.jpg" />
+</div>
+
+::right::
+
+<div class="py-8 px-4" v-click >
+<img src="/images/pda_services.png" style="height:50vh" />
+</div>
+
+<!--
+1. 支持三种移库位的方式
+
+2. 历史原因，分为 WMS 服务 和 FBA 服务
+- PC 端有两个系统
+- 仓库工作人员使用 PDA 频率高， 为降低操作成本，合而为一
+-->
+
+
+
+
+---
+transition: slide-left
 layout: two-cols-customer
 leftSpan: 1
 rightSpan: 2
@@ -76,8 +96,8 @@ rightSpan: 2
 
 ::right::
 
-<div class="py-8 px-4" v-click >
-<img src="/images/pda_services.png" style="height:50vh" />
+<div class="py-8 px-4 flex justify-center" >
+  <img src="/images/query_process.png" style="height:50vh" />
 </div>
 
 
@@ -115,53 +135,52 @@ rightSpan: 2
 }
 </style>
 
+<!--
+想一想实现方式
+
+if...else...
+
+策略模式
+-->
 
 ---
 transition: slide-left
-layout: two-cols-customer
-leftSpan: 1
-rightSpan: 2
 ---
-<!-- <img src="/images/pda_moving_location.jpg" class="object-fill h-full shadow" /> -->
 
-<div class="h-full flex items-center justify-center">
-<Phone img="/images/pda_moving_location.jpg" />
+<div class="mt-4">
+  <img src="/images/strategy.png" />
 </div>
-
-::right::
-
-<div class="py-8 px-4 flex justify-center" >
-  <img src="/images/query_process.png" style="height:50vh" />
-</div>
-
 
 ---
 layout: two-cols
+layoutClass: two-cols--with-gap
 ---
 
-```ts {all|2|4-19|21-23|all}
+```ts {all|2|8-21|23-25|all}
 class OperationDelegate {
-  operationInstance?: Operation
+  private strategy?: OperationStrategy
+
+  setStrategy(strategy: OperationStrategy) {
+    this.strategy = strategy
+  }
   
   async query(q: string) {
-    let instance: Operation
-    
-    instance = new WmsOperation()
-    const wmsResp = await instance.query(q)
+    let strategy: OperationStrategy = new WmsStrategy()
+    const wmsResp = await strategy.query(q)
     if (wmsResp.isSuccess) {
-      this.operationInstance = instance
+      this.setStrategy(strategy)
       return
     }
 
-    instance = new FbaOperation()
-    const fbaResp = await instance.query(q)
+    strategy = new FbaStrategy()
+    const fbaResp = await strategy.query(q)
     if (fbaResp.isSuccess) {
-      this.operationInstance = instance
+      this.setStrategy(strategy)
     }
   }
 
   submit() {
-    this.operationInstance?.submit()
+    this.strategy?.submit()
   }
 }
 ```
@@ -172,25 +191,33 @@ class OperationDelegate {
 /**
  * 抽象类，定义公共接口
  */
-abstract class Operation {
+abstract class OperationStrategy {
   abstract query(q: string):Promise<any>;
   abstract submit():Promise<void>;
 }
 
 
+
 /**
  * 具体实现类 -- 实现 WMS 业务的操作
  */
-class WmsOperation extends Operation {
+class WmsStrategy extends OperationStrategy {
   async query(q: string) { /* ... */}
   async submit() { /* ... */}
 }
 
+
 /**
  * 具体实现类 -- 实现 FBA 业务的操作
  */
-class FbaOperation extends Operation {
+class FbaStrategy extends OperationStrategy {
   async query(q: string) { /* ... */}
   async submit() { /* ... */}
 }
 ```
+
+<style>
+.two-cols--with-gap {
+  gap: 16px;
+}
+</style>
